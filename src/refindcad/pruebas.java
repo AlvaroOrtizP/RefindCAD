@@ -25,12 +25,12 @@ public class pruebas {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
-        
+
         Scanner scan = new Scanner(System.in);
         String opcion = "";
         do {
             System.out.println("Opcion 1: insertar usuario");
+            System.out.println("Opcion 2: mostrar un usuario");
             opcion = scan.nextLine();
 
             switch (opcion) {
@@ -39,9 +39,22 @@ public class pruebas {
 
                     try {
                         RefindCAD refindCAD = new RefindCAD();
-                        Usuario usuario = new Usuario("asdasd", "Pacosas", "apellido", "email@gmail.com", "asdasda asdasd ", "asdasd", 0);
-                        refindCAD.insertarUsuario(usuario);
+                        Usuario usuario = new Usuario("asdasd", "Ruben", "Lara", "email@gmail.com", "asdasda asdasd ", "asdasd", 0);
+                        refindCAD.actualizarUsuario(usuario);
                         System.out.println("ok");
+                    } catch (ExcepcionRefind ex) {
+                        System.out.println(ex.getMensajeUsuario());
+                        System.out.println(ex.getMensajeAdmin());
+                    }
+                    break;
+                case "2":
+                    System.out.println("Insertar un usuario");
+
+                    try {
+                        RefindCAD refindCAD = new RefindCAD();
+                        Usuario usuario = refindCAD.obtenerUsuario("asdasd");
+
+                        System.out.println(usuario);
                     } catch (ExcepcionRefind ex) {
                         System.out.println(ex.getMensajeUsuario());
                         System.out.println(ex.getMensajeAdmin());

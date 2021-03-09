@@ -10,10 +10,10 @@ import POJOS.Usuario;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -46,13 +46,18 @@ public class RefindCAD {
     }
 
     /**
-     * 
-     * 
-     * 
-     * Ademas el identificador de usuario no puede aparecer duplicado ya que es gestionbado por fireBase
+     * ------------- METODOS USUARIO
+     */
+    /**
+     *
+     *
+     *
+     * Ademas el identificador de usuario no puede aparecer duplicado ya que es
+     * gestionbado por fireBase
+     *
      * @param usuario
      * @return
-     * @throws ExcepcionRefind 
+     * @throws ExcepcionRefind
      */
     public int insertarUsuario(Usuario usuario) throws ExcepcionRefind {
         int registrosAfectados = 0;
@@ -94,46 +99,154 @@ public class RefindCAD {
         }
         return registrosAfectados;
     }
-    
-    public void actualizarUsuario(){
-        
+
+    public int actualizarUsuario(Usuario usuario) throws ExcepcionRefind {
+        int registrosAfectados = 0;
+        String dml = "UPDATE usuario SET nombre=?,apellido=?,email=?,biografia=? WHERE usuario_firebase=?";
+        conectar();
+        try {
+            PreparedStatement sentenciaPreparada = conexion.prepareStatement(dml);
+            sentenciaPreparada.setString(1, usuario.getNombre());
+            sentenciaPreparada.setString(2, usuario.getApellido());
+            sentenciaPreparada.setString(3, usuario.getEmail());
+            sentenciaPreparada.setString(4, usuario.getBiografia());
+            sentenciaPreparada.setString(5, usuario.getUsuarioFirebase());
+            registrosAfectados = sentenciaPreparada.executeUpdate();
+            sentenciaPreparada.close();
+            conexion.close();
+
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+
+            String[] palabraClave = {"null"};
+            String error = "";
+            for (int i = 0; i < palabraClave.length; i++) {
+                if (ex.getMessage().contains(palabraClave[i])) {
+                    error = palabraClave[i];
+                    break;
+                }
+            }
+            switch (error) {
+                case "null":
+                    e.setMensajeUsuario("Es necesario rellenar todos los campos");
+                    break;
+                default:
+                    e.setMensajeUsuario("Error general del sistema. Consulte con su administrador");
+            }
+            e.setMensajeAdmin(ex.getMessage());
+            throw e;
+        }
+        return registrosAfectados;
     }
-    public void obtenerUsuario(){
-        
+
+    public void actualizarFotoUsuario() {
+
     }
-    public void insertarFavorito(){
-        
+
+    public int actualizarCreador(Usuario usuario) throws ExcepcionRefind {
+        int registrosAfectados = 0;
+        String dml = "UPDATE usuario SET creador=? WHERE usuario_firebase=?";
+        conectar();
+        try {
+            PreparedStatement sentenciaPreparada = conexion.prepareStatement(dml);
+
+            sentenciaPreparada.setObject(1, usuario.getCreador(), Types.INTEGER);
+            sentenciaPreparada.setString(2, usuario.getUsuarioFirebase());
+
+            registrosAfectados = sentenciaPreparada.executeUpdate();
+            sentenciaPreparada.close();
+            conexion.close();
+
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+
+            String[] palabraClave = {"null"};
+            String error = "";
+            for (int i = 0; i < palabraClave.length; i++) {
+                if (ex.getMessage().contains(palabraClave[i])) {
+                    error = palabraClave[i];
+                    break;
+                }
+            }
+            switch (error) {
+                case "null":
+                    e.setMensajeUsuario("Es necesario rellenar todos los campos");
+                    break;
+                default:
+                    e.setMensajeUsuario("Error general del sistema. Consulte con su administrador");
+            }
+            e.setMensajeAdmin(ex.getMessage());
+            throw e;
+        }
+        return registrosAfectados;
     }
-    public void eliminarFavorito(){
-        
+
+    public Usuario obtenerUsuario(String usuarioFirebase) throws ExcepcionRefind {
+        conectar();
+        Usuario usuario = new Usuario();
+        String sql = "select * from usuario where usuario_firebase = '" + usuarioFirebase + "'";
+
+        try {
+            conectar();
+            Statement sentencia = conexion.createStatement();
+            ResultSet res = sentencia.executeQuery(sql);
+            while (res.next()) {
+                usuario.setUsuarioFirebase(usuarioFirebase);
+                usuario.setNombre(res.getString("nombre"));
+                usuario.setApellido(res.getString("apellido"));
+                usuario.setBiografia(res.getString("biografia"));
+                usuario.setEmail(res.getString("email"));
+                usuario.setCreador(res.getInt("creador"));
+                usuario.setFoto(res.getString("foto"));
+            }
+            res.close();
+            sentencia.close();
+            conexion.close();
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+            e.setMensajeAdmin(ex.getMessage());
+            e.setMensajeUsuario("Error general del sistema. Consulte con el administrador");
+        }
+        return usuario;
     }
-    
-    public void obtenerFavorito(){
-        
+
+    /**
+     *
+     */
+    public void insertarFavorito() {
+
     }
-    
-    
-    public void obtenerFavoritos(){
-        
+
+    public void eliminarFavorito() {
+
     }
-    
-    public void insertarComentario(){
-        
+
+    public void obtenerFavorito() {
+
     }
-    
-    public void obtenerComentarios(){
-        
+
+    public void obtenerFavoritos() {
+
     }
-    
-    public void obtenerAnuncio(){
-        
+
+    public void insertarComentario() {
+
     }
-    public void obtenerAnuncios(){
-        
+
+    public void obtenerComentarios() {
+
     }
-    public void obtenerCategoria(){
-        
+
+    public void obtenerAnuncio() {
+
     }
-    
-    
+
+    public void obtenerAnuncios() {
+
+    }
+
+    public void obtenerCategoria() {
+
+    }
+
 }
