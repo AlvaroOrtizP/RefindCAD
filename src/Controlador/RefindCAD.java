@@ -5,6 +5,7 @@
  */
 package Controlador;
 
+import POJOS.Anuncio;
 import POJOS.ExcepcionRefind;
 import POJOS.Usuario;
 import java.sql.Connection;
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
 
 /**
  *
@@ -211,24 +213,148 @@ public class RefindCAD {
     }
 
     /**
-     *
+     * FAVORITOS
      */
-    public void insertarFavorito() {
+    public int insertarFavorito(Usuario usuario, Anuncio anuncio) throws ExcepcionRefind {
+        int registrosAfectados = 0;
+        String dml = "INSERT INTO favorito (usuario_firebase, anuncio_id) values (?,?)";
+        conectar();
+        try {
+            PreparedStatement sentenciaPreparada = conexion.prepareStatement(dml);
+            sentenciaPreparada.setString(1, usuario.getUsuarioFirebase());
+            sentenciaPreparada.setObject(2, anuncio.getAnuncioId(), Types.INTEGER);
+            registrosAfectados = sentenciaPreparada.executeUpdate();
+            sentenciaPreparada.close();
+            conexion.close();
 
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+
+            String[] palabraClave = {"null"};
+            String error = "";
+            for (int i = 0; i < palabraClave.length; i++) {
+                if (ex.getMessage().contains(palabraClave[i])) {
+                    error = palabraClave[i];
+                    break;
+                }
+            }
+            switch (error) {
+                case "null":
+                    e.setMensajeUsuario("Es necesario rellenar todos los campos");
+                    break;
+                default:
+                    e.setMensajeUsuario("Error general del sistema. Consulte con su administrador");
+            }
+            e.setMensajeAdmin(ex.getMessage());
+            throw e;
+        }
+        return registrosAfectados;
     }
 
-    public void eliminarFavorito() {
+    public int eliminarFavorito(Usuario usuario, Anuncio anuncio) throws ExcepcionRefind {
+        int registrosAfectados = 0;
+        String dml = "DELETE FROM favorito WHERE usuario_firebase=? and anuncio_id=?";
+        conectar();
+        try {
+            PreparedStatement sentenciaPreparada = conexion.prepareStatement(dml);
+            sentenciaPreparada.setString(1, usuario.getUsuarioFirebase());
+            sentenciaPreparada.setObject(2, anuncio.getAnuncioId(), Types.INTEGER);
+            registrosAfectados = sentenciaPreparada.executeUpdate();
+            sentenciaPreparada.close();
+            conexion.close();
 
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+
+            String[] palabraClave = {"null"};
+            String error = "";
+            for (int i = 0; i < palabraClave.length; i++) {
+                if (ex.getMessage().contains(palabraClave[i])) {
+                    error = palabraClave[i];
+                    break;
+                }
+            }
+            switch (error) {
+                case "null":
+                    e.setMensajeUsuario("Es necesario rellenar todos los campos");
+                    break;
+                default:
+                    e.setMensajeUsuario("Error general del sistema. Consulte con su administrador");
+            }
+            e.setMensajeAdmin(ex.getMessage());
+            throw e;
+        }
+        return registrosAfectados;
     }
 
-    public void obtenerFavorito() {
-
+    //Podria hacer esta comprobacion en obtener anuncio
+    /**
+     * Devuelve un boolean si el anuncio se encuentra en la lista de favoritos
+     * del usuario
+     *
+     * @param usuario
+     * @throws ExcepcionRefind
+     */
+    public boolean comprobarFavorito(Usuario usuario, Anuncio anuncio) throws ExcepcionRefind {
+        conectar();
+        String sql = "SELECT * FROM favorito WHERE usuario_firebase='" + usuario.getUsuarioFirebase() + "' and anunci_id=" + anuncio.getAnuncioId();
+        boolean comprobar = false;
+        try {
+            conectar();
+            Statement sentencia = conexion.createStatement();
+            ResultSet res = sentencia.executeQuery(sql);
+            while (res.next()) {
+                comprobar = true;
+            }
+            res.close();
+            sentencia.close();
+            conexion.close();
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+            e.setMensajeAdmin(ex.getMessage());
+            e.setMensajeUsuario("Error general del sistema. Consulte con el administrador");
+        }
+        return comprobar;
     }
 
-    public void obtenerFavoritos() {
+    public ArrayList<Anuncio> obtenerFavoritos() throws ExcepcionRefind {
+        conectar();
+        ArrayList<Anuncio> listaAnuncios = new ArrayList();
+        String sql = "SELECT a.anuncio_id, a.titulo, a.descripcion, a.telefono, a.foto\n"
+                + "FROM anuncio a, favorito f, usuario u \n"
+                + "WHERE a.anuncio_id = f.anuncio_id \n"
+                + "	and f.usuario_firebase = u.usuario_firebase \n"
+                + "     and u.usuario_firebase ='wcPy44M9TiOuKIQIp3BfBTHrhfi1'";
 
+        try {
+            conectar();
+            Statement sentencia = conexion.createStatement();
+            ResultSet res = sentencia.executeQuery(sql);
+            while (res.next()) {
+                Anuncio anuncio = new Anuncio();
+                anuncio.setAnuncioId(res.getInt("anuncio_id"));
+                anuncio.setTitulo(res.getString("titulo"));
+                anuncio.setDescripcion(res.getString("descripcion"));
+                anuncio.setTelefono(res.getString("telefono"));
+                anuncio.setFoto(res.getString("foto"));
+
+                listaAnuncios.add(anuncio);
+            }
+            res.close();
+            sentencia.close();
+            conexion.close();
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+            e.setMensajeAdmin(ex.getMessage());
+            e.setMensajeUsuario("Error general del sistema. Consulte con el administrador");
+        }
+
+        return listaAnuncios;
     }
 
+    /**
+     * COMENTARIOS
+     */
     public void insertarComentario() {
 
     }
@@ -237,6 +363,9 @@ public class RefindCAD {
 
     }
 
+    /**
+     * ANUNCIOS
+     */
     public void obtenerAnuncio() {
 
     }
