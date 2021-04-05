@@ -5,11 +5,13 @@
  */
 package POJOS;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alorp
  */
-public class Usuario {
+public class Usuario implements Serializable{
 
     private String usuarioFirebase;
     private String nombre;

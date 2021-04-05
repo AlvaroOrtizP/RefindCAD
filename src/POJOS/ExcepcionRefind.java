@@ -5,11 +5,13 @@
  */
 package POJOS;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alorp
  */
-public class ExcepcionRefind extends Exception {
+public class ExcepcionRefind extends Exception implements Serializable{
 
     private String mensajeUsuario;
     private String mensajeAdmin;

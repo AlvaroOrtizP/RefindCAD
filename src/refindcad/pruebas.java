@@ -32,16 +32,17 @@ public class pruebas {
         Scanner scan = new Scanner(System.in);
         String opcion = "";
         do {
-            System.out.println("Opcion 1: insertar usuario");
+            System.out.println("Opcion 1: actualizar usuario");
             System.out.println("Opcion 2: mostrar un usuario");
             System.out.println("Opcion 3: insertar favorito");
             System.out.println("Opcion 4: eliminar un favorito");
             System.out.println("Opcion 5: obtener favoritos");
+            System.out.println("Opcion 6: insertar usuario");
             opcion = scan.nextLine();
 
             switch (opcion) {
                 case "1":
-                    System.out.println("Insertar un usuario");
+                    System.out.println("actualizar un usuario");
 
                     try {
                         RefindCAD refindCAD = new RefindCAD();
@@ -54,13 +55,13 @@ public class pruebas {
                     }
                     break;
                 case "2":
-                    System.out.println("Insertar un usuario");
+                    System.out.println("obtener un usuario");
 
                     try {
                         RefindCAD refindCAD = new RefindCAD();
-                        Usuario usuario = refindCAD.obtenerUsuario("asdasd");
+                        //Usuario usuario = refindCAD.obtenerUsuario("asdasd");
 
-                        System.out.println(usuario);
+                        //System.out.println(usuario);
                     } catch (ExcepcionRefind ex) {
                         System.out.println(ex.getMensajeUsuario());
                         System.out.println(ex.getMensajeAdmin());
@@ -110,7 +111,19 @@ public class pruebas {
                         System.out.println(ex.getMensajeAdmin());
                     }
                     break;
+                case "6":
+                    System.out.println("insertar un usuario");
 
+                    try {
+                        RefindCAD refindCAD = new RefindCAD();
+                        Usuario usuario = new Usuario("asdasd1", "Ruben", "Lara", "email@gmail.com", "asdasda asdasd ", "asdasd", 0);
+                        refindCAD.insertarUsuario(usuario);
+                        System.out.println("ok");
+                    } catch (ExcepcionRefind ex) {
+                        System.out.println(ex.getMensajeUsuario());
+                        System.out.println(ex.getMensajeAdmin());
+                    }
+                    break;
             }
             opcion = "kk";
         } while (opcion.equals("kk"));

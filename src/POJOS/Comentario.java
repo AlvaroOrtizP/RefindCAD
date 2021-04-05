@@ -5,11 +5,13 @@
  */
 package POJOS;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alorp
  */
-public class Comentario {
+public class Comentario implements Serializable{
 
     private Integer comentarioId;
     private Usuario usuario;

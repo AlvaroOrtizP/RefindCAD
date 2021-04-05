@@ -5,11 +5,13 @@
  */
 package POJOS;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alorp
  */
-public class Anuncio {
+public class Anuncio implements Serializable{
 
     private Integer anuncioId;
     private String titulo;
@@ -68,7 +70,7 @@ public class Anuncio {
         return usuario;
     }
 
-    public void setUsuario(String usuarioFirebase) {
+    public void setUsuario(Usuario usuarioFirebase) {
         this.usuario = usuario;
     }
 

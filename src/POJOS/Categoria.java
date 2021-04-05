@@ -5,11 +5,13 @@
  */
 package POJOS;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alorp
  */
-public class Categoria {
+public class Categoria implements Serializable{
 
     private Integer categoriaId;
     private String titulo;
@@ -23,6 +25,38 @@ public class Categoria {
         this.categoriaId = categoriaId;
         this.titulo = titulo;
         this.descripcion = descripcion;
+        this.foto = foto;
+    }
+
+    public Integer getCategoriaId() {
+        return categoriaId;
+    }
+
+    public void setCategoriaId(Integer categoriaId) {
+        this.categoriaId = categoriaId;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
         this.foto = foto;
     }
 

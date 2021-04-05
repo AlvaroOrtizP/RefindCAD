@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -6,6 +7,7 @@
 package Controlador;
 
 import POJOS.Anuncio;
+import POJOS.Categoria;
 import POJOS.ExcepcionRefind;
 import POJOS.Usuario;
 import java.sql.Connection;
@@ -63,17 +65,17 @@ public class RefindCAD {
      */
     public int insertarUsuario(Usuario usuario) throws ExcepcionRefind {
         int registrosAfectados = 0;
-        String dml = "INSERT INTO usuario (usuario_firebase, nombre, apellido, email, biografia, foto) values (?,?,?,?,?,?)";
+        String dml = "INSERT INTO usuario(usuario_firebase, nombre, apellido, biografia, email, foto, creador) VALUES (?,?,?,?,?,?,0)";
         conectar();
         try {
             PreparedStatement sentenciaPreparada = conexion.prepareStatement(dml);
             sentenciaPreparada.setString(1, usuario.getUsuarioFirebase());
             sentenciaPreparada.setString(2, usuario.getNombre());
             sentenciaPreparada.setString(3, usuario.getApellido());
-            sentenciaPreparada.setString(4, usuario.getEmail());
-            sentenciaPreparada.setString(5, usuario.getBiografia());
+            sentenciaPreparada.setString(5, usuario.getEmail());
+            sentenciaPreparada.setString(4, usuario.getBiografia());
             sentenciaPreparada.setString(6, usuario.getFoto());//
-            //sentenciaPreparada.setObject(6, usuario.getCreador(), Types.INTEGER);
+            //sentenciaPreparada.setObject(7, usuario.getCreador(), Types.INTEGER);
             registrosAfectados = sentenciaPreparada.executeUpdate();
             sentenciaPreparada.close();
             conexion.close();
@@ -183,17 +185,17 @@ public class RefindCAD {
         return registrosAfectados;
     }
 
-    public Usuario obtenerUsuario(String usuarioFirebase) throws ExcepcionRefind {
+    public Usuario obtenerUsuario(Usuario usuarioFirebase) throws ExcepcionRefind {
         conectar();
         Usuario usuario = new Usuario();
-        String sql = "select * from usuario where usuario_firebase = '" + usuarioFirebase + "'";
+        String sql = "select * from usuario where usuario_firebase = '" + usuarioFirebase.getUsuarioFirebase() + "'";
 
         try {
             conectar();
             Statement sentencia = conexion.createStatement();
             ResultSet res = sentencia.executeQuery(sql);
             while (res.next()) {
-                usuario.setUsuarioFirebase(usuarioFirebase);
+                usuario.setUsuarioFirebase(usuarioFirebase.getUsuarioFirebase());
                 usuario.setNombre(res.getString("nombre"));
                 usuario.setApellido(res.getString("apellido"));
                 usuario.setBiografia(res.getString("biografia"));
@@ -297,7 +299,7 @@ public class RefindCAD {
      */
     public boolean comprobarFavorito(Usuario usuario, Anuncio anuncio) throws ExcepcionRefind {
         conectar();
-        String sql = "SELECT * FROM favorito WHERE usuario_firebase='" + usuario.getUsuarioFirebase() + "' and anunci_id=" + anuncio.getAnuncioId();
+        String sql = "SELECT * FROM favorito WHERE usuario_firebase='" + usuario.getUsuarioFirebase() + "' and anuncio_id=" + anuncio.getAnuncioId();
         boolean comprobar = false;
         try {
             conectar();
@@ -366,16 +368,48 @@ public class RefindCAD {
     /**
      * ANUNCIOS
      */
-    public void obtenerAnuncio() {
+    public Anuncio obtenerAnuncio(Anuncio anuncioId) throws ExcepcionRefind {
+        conectar();
+        Anuncio anuncio = new Anuncio();
+        Categoria categoria = new Categoria();
+        Usuario usuario = new Usuario();
+        String sql = "select * from usuario where usuario_firebase = " + anuncioId.getAnuncioId();
 
+        try {
+            conectar();
+            Statement sentencia = conexion.createStatement();
+            ResultSet res = sentencia.executeQuery(sql);
+            while (res.next()) {
+                anuncio.setAnuncioId(anuncioId.getAnuncioId());
+                anuncio.setTitulo(res.getString("titulo"));
+                anuncio.setDescripcion(res.getString("descripcion"));
+                anuncio.setTelefono(res.getString("telefono"));
+                anuncio.setFoto(res.getString("foto"));
+
+                categoria.setCategoriaId(res.getInt("categori_id"));
+                categoria.setTitulo(res.getString("titulo"));
+                anuncio.setCategoria(categoria);
+
+                usuario.setUsuarioFirebase(res.getString("usuario_firebase"));
+                anuncio.setUsuario(usuario);
+            }
+            res.close();
+            sentencia.close();
+            conexion.close();
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+            e.setMensajeAdmin(ex.getMessage());
+            e.setMensajeUsuario("Error general del sistema. Consulte con el administrador");
+        }
+        return anuncio;
     }
 
-    public void obtenerAnuncios() {
-
+    public ArrayList<Anuncio> obtenerAnuncios() {
+        return null;
     }
 
-    public void obtenerCategoria() {
-
+    public ArrayList<Categoria> obtenerCategorias() {
+        return null;
     }
 
 }

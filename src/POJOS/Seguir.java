@@ -5,19 +5,21 @@
  */
 package POJOS;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alorp
  */
-public class Seguir {
+public class Seguir implements Serializable{
 
     private Usuario usuario;
-    private String seguidor;
+    private Usuario seguidor;
 
     public Seguir() {
     }
 
-    public Seguir(Usuario usuario, String seguidor) {
+    public Seguir(Usuario usuario, Usuario seguidor) {
         this.usuario = usuario;
         this.seguidor = seguidor;
     }
@@ -31,11 +33,11 @@ public class Seguir {
     }
 
    
-    public String getSeguidor() {
+    public Usuario getSeguidor() {
         return seguidor;
     }
 
-    public void setSeguidor(String seguidor) {
+    public void setSeguidor(Usuario seguidor) {
         this.seguidor = seguidor;
     }
 

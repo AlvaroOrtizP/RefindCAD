@@ -11,17 +11,17 @@ import java.io.Serializable;
  *
  * @author alorp
  */
-public class Favorito implements Serializable{
+public class ComentarioLike implements Serializable{
 
     private Usuario usuario;
-    private Anuncio anuncio;
+    private Comentario comentario;
 
-    public Favorito() {
+    public ComentarioLike() {
     }
 
-    public Favorito(Usuario usuario, Anuncio anuncio) {
+    public ComentarioLike(Usuario usuario, Comentario comentario) {
         this.usuario = usuario;
-        this.anuncio = anuncio;
+        this.comentario = comentario;
     }
 
     public Usuario getUsuario() {
@@ -32,17 +32,19 @@ public class Favorito implements Serializable{
         this.usuario = usuario;
     }
 
-    public Anuncio getAnuncio() {
-        return anuncio;
+
+
+    public Comentario getComentario() {
+        return comentario;
     }
 
-    public void setAnuncio(Anuncio anuncio) {
-        this.anuncio = anuncio;
+    public void setComentario(Comentario comentario) {
+        this.comentario = comentario;
     }
 
     @Override
     public String toString() {
-        return "Favorito{" + "usuario=" + usuario + ", anuncio=" + anuncio + '}';
+        return "comentarioLike{" + "usuario=" + usuario + ", comentario=" + comentario + '}';
     }
 
 }
