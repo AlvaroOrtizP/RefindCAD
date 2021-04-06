@@ -8,6 +8,7 @@ package refindcad;
 import Controlador.RefindCAD;
 import POJOS.Anuncio;
 import POJOS.Categoria;
+import POJOS.Comentario;
 import POJOS.ExcepcionRefind;
 import POJOS.Usuario;
 import java.sql.Connection;
@@ -38,6 +39,9 @@ public class pruebas {
             System.out.println("Opcion 4: eliminar un favorito");
             System.out.println("Opcion 5: obtener favoritos");
             System.out.println("Opcion 6: insertar usuario");
+            System.out.println("Opcion 7: obtener anuncio");
+            System.out.println("Opcion 8: obtener coemntarios de un anuncio");
+            System.out.println("Opcion 9: obtener categorias");
             opcion = scan.nextLine();
 
             switch (opcion) {
@@ -119,6 +123,50 @@ public class pruebas {
                         Usuario usuario = new Usuario("asdasd1", "Ruben", "Lara", "email@gmail.com", "asdasda asdasd ", "asdasd", 0);
                         refindCAD.insertarUsuario(usuario);
                         System.out.println("ok");
+                    } catch (ExcepcionRefind ex) {
+                        System.out.println(ex.getMensajeUsuario());
+                        System.out.println(ex.getMensajeAdmin());
+                    }
+                case "7":
+                    System.out.println("obtener anuncio");
+
+                    try {
+                        RefindCAD refindCAD = new RefindCAD();
+                        Anuncio anuncio = new Anuncio();
+                        anuncio.setAnuncioId(1);
+                        anuncio = refindCAD.obtenerAnuncio(anuncio);
+                        System.out.println(anuncio);
+                    } catch (ExcepcionRefind ex) {
+                        System.out.println(ex.getMensajeUsuario());
+                        System.out.println(ex.getMensajeAdmin());
+                    }
+                    break;
+                case "8":
+                    System.out.println("obtener coemntarios de un anuncio");
+
+                    try {
+                        RefindCAD refindCAD = new RefindCAD();
+                        Anuncio anuncio = new Anuncio();
+                        anuncio.setAnuncioId(1);
+                        ArrayList<Comentario> listaComentario = new ArrayList();
+                        listaComentario = refindCAD.obtenerComentarios(anuncio);
+                        System.out.println(listaComentario.get(0).getTexto());
+                        System.out.println(listaComentario.get(1).getTexto());
+                    } catch (ExcepcionRefind ex) {
+                        System.out.println(ex.getMensajeUsuario());
+                        System.out.println(ex.getMensajeAdmin());
+                    }
+                    break;
+                case "9":
+                    System.out.println("obtener categorias");
+
+                    try {
+                        RefindCAD refindCAD = new RefindCAD();
+                        Categoria categoria = new Categoria();
+                        ArrayList<Categoria> listaCategoria = new ArrayList();
+                        listaCategoria = refindCAD.obtenerCategorias();
+                        System.out.println(listaCategoria.get(0).getTitulo());
+                        System.out.println(listaCategoria.get(1).getTitulo());
                     } catch (ExcepcionRefind ex) {
                         System.out.println(ex.getMensajeUsuario());
                         System.out.println(ex.getMensajeAdmin());

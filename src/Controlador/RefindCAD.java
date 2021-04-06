@@ -8,6 +8,7 @@ package Controlador;
 
 import POJOS.Anuncio;
 import POJOS.Categoria;
+import POJOS.Comentario;
 import POJOS.ExcepcionRefind;
 import POJOS.Usuario;
 import java.sql.Connection;
@@ -145,7 +146,7 @@ public class RefindCAD {
 
     public void actualizarFotoUsuario() {
 
-    }
+    }//FALTA
 
     public int actualizarCreador(Usuario usuario) throws ExcepcionRefind {
         int registrosAfectados = 0;
@@ -215,7 +216,7 @@ public class RefindCAD {
     }
 
     /**
-     * FAVORITOS
+     * ------------- METODOS FAVORITOS
      */
     public int insertarFavorito(Usuario usuario, Anuncio anuncio) throws ExcepcionRefind {
         int registrosAfectados = 0;
@@ -315,6 +316,7 @@ public class RefindCAD {
             ExcepcionRefind e = new ExcepcionRefind();
             e.setMensajeAdmin(ex.getMessage());
             e.setMensajeUsuario("Error general del sistema. Consulte con el administrador");
+            throw e;
         }
         return comprobar;
     }
@@ -349,31 +351,122 @@ public class RefindCAD {
             ExcepcionRefind e = new ExcepcionRefind();
             e.setMensajeAdmin(ex.getMessage());
             e.setMensajeUsuario("Error general del sistema. Consulte con el administrador");
+            throw e;
         }
 
         return listaAnuncios;
     }
 
     /**
-     * COMENTARIOS
+     * ------------- METODOS COMENTARIOS
      */
-    public void insertarComentario() {
+    public int insertarComentario(Comentario comentario) throws ExcepcionRefind {
+        int registrosAfectados = 0;
+        String dml = "INSERT INTO comentario(usuario_id, anuncio_id, texto) VALUES (?,?,?)";
+        conectar();
+        try {
+            PreparedStatement sentenciaPreparada = conexion.prepareStatement(dml);
+            sentenciaPreparada.setString(1, comentario.getUsuario().getUsuarioFirebase());
+            sentenciaPreparada.setObject(2, comentario.getAnuncio().getAnuncioId(), Types.INTEGER);
+            sentenciaPreparada.setString(3, comentario.getTexto());
+            registrosAfectados = sentenciaPreparada.executeUpdate();
+            sentenciaPreparada.close();
+            conexion.close();
 
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+
+            String[] palabraClave = {"null"};
+            String error = "";
+            for (int i = 0; i < palabraClave.length; i++) {
+                if (ex.getMessage().contains(palabraClave[i])) {
+                    error = palabraClave[i];
+                    break;
+                }
+            }
+            switch (error) {
+                case "null":
+                    e.setMensajeUsuario("Es necesario rellenar todos los campos");
+                    break;
+                default:
+                    e.setMensajeUsuario("Error general del sistema. Consulte con su administrador");
+            }
+            e.setMensajeAdmin(ex.getMessage());
+            throw e;
+        }
+        return registrosAfectados;
     }
 
-    public void obtenerComentarios() {
+    public int eliminarComentario(Comentario comentario) throws ExcepcionRefind {
+        conectar();
+        int registrosAfectados = 0;
+        String sql = "DELETE FROM comentario WHERE COMENTARIO_ID = ?";
+        try {
+            PreparedStatement sentenciaPreparada = conexion.prepareStatement(sql);
+            sentenciaPreparada.setObject(1, comentario.getComentarioId(), Types.INTEGER);
 
+            registrosAfectados = sentenciaPreparada.executeUpdate();
+            sentenciaPreparada.close();
+            conexion.close();
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+            e.setMensajeUsuario("Error general de eliminarComentario");
+            throw e;
+        }
+        return registrosAfectados;
+    }
+
+    public ArrayList<Comentario> obtenerComentarios(Anuncio anuncioId) throws ExcepcionRefind {
+        ArrayList<Comentario> listaComentario = new ArrayList();
+        String sql = "SELECT c.comentario_id, c.usuario_id, c.anuncio_id, c.texto, "
+                + "u.nombre, u.apellido, u.foto "
+                + "FROM comentario c, usuario u "
+                + "WHERE c.anuncio_id= " + anuncioId.getAnuncioId();
+        try {
+            conectar();
+            Statement sentencia = conexion.createStatement();
+            ResultSet res = sentencia.executeQuery(sql);
+            while (res.next()) {
+
+                Usuario usuario = new Usuario();
+                usuario.setUsuarioFirebase(res.getString("c.usuario_id"));
+                usuario.setNombre(res.getString("u.nombre"));
+                usuario.setApellido(res.getString("u.apellido"));
+                usuario.setFoto(res.getString("u.foto"));
+
+                Anuncio anuncio = new Anuncio();
+                anuncio.setAnuncioId(res.getInt("c.anuncio_id"));
+
+                Comentario comentario = new Comentario();
+                comentario.setUsuario(usuario);
+                comentario.setAnuncio(anuncio);
+                comentario.setComentarioId(res.getInt("c.comentario_id"));
+                comentario.setTexto(res.getString("c.texto"));
+                listaComentario.add(comentario);
+            }
+
+            res.close();
+            sentencia.close();
+            conexion.close();
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+            /*e.setMensajeErrorAdministrador(ex.getMessage());
+            e.setCodigoError(ex.getErrorCode());
+            e.setSentenciaSQL(sql);*/
+            e.setMensajeUsuario("Error general del sistema. Consulte con el administrador");
+            throw e;
+        }
+
+        return listaComentario;
     }
 
     /**
-     * ANUNCIOS
+     * ------------- METODOS ANUNCIOS
      */
     public Anuncio obtenerAnuncio(Anuncio anuncioId) throws ExcepcionRefind {
         conectar();
         Anuncio anuncio = new Anuncio();
-        Categoria categoria = new Categoria();
-        Usuario usuario = new Usuario();
-        String sql = "select * from usuario where usuario_firebase = " + anuncioId.getAnuncioId();
+        String sql = "SELECT * FROM anuncio a WHERE anuncio_id= " + anuncioId.getAnuncioId();
 
         try {
             conectar();
@@ -386,12 +479,12 @@ public class RefindCAD {
                 anuncio.setTelefono(res.getString("telefono"));
                 anuncio.setFoto(res.getString("foto"));
 
-                categoria.setCategoriaId(res.getInt("categori_id"));
+                /*categoria.setCategoriaId(res.getInt("categori_id"));
                 categoria.setTitulo(res.getString("titulo"));
                 anuncio.setCategoria(categoria);
-
+                
                 usuario.setUsuarioFirebase(res.getString("usuario_firebase"));
-                anuncio.setUsuario(usuario);
+                anuncio.setUsuario(usuario);*/
             }
             res.close();
             sentencia.close();
@@ -404,12 +497,69 @@ public class RefindCAD {
         return anuncio;
     }
 
-    public ArrayList<Anuncio> obtenerAnuncios() {
-        return null;
+    public ArrayList<Anuncio> obtenerAnuncios(Categoria categoriaId) throws ExcepcionRefind {
+        ArrayList<Anuncio> listaAnuncios = new ArrayList();
+        String sql = "SELECT anuncio_id, titulo, descripcion, foto FROM `anuncio` WHERE categoria_id= " + categoriaId.getCategoriaId();
+        try {
+            conectar();
+            Statement sentencia = conexion.createStatement();
+            ResultSet res = sentencia.executeQuery(sql);
+            Anuncio anuncio = null;
+            while (res.next()) {
+                anuncio = new Anuncio();
+                anuncio.setAnuncioId(res.getInt("anuncio_id"));
+                anuncio.setTitulo(res.getString("titulo"));
+                anuncio.setDescripcion(res.getString("descripcion"));
+                anuncio.setFoto(res.getString("foto"));
+                listaAnuncios.add(anuncio);
+            }
+
+            res.close();
+            sentencia.close();
+            conexion.close();
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+            /*e.setMensajeErrorAdministrador(ex.getMessage());
+            e.setCodigoError(ex.getErrorCode());
+            e.setSentenciaSQL(sql);*/
+            e.setMensajeUsuario("Error general del sistema. Consulte con el administrador");
+        }
+
+        return listaAnuncios;
     }
 
-    public ArrayList<Categoria> obtenerCategorias() {
-        return null;
+    /**
+     * ------------- METODOS CATEGORIAS
+     */
+    public ArrayList<Categoria> obtenerCategorias() throws ExcepcionRefind {
+        ArrayList<Categoria> listaCategoria = new ArrayList();
+        String sql = "SELECT titulo, descripcion, foto from categoria";
+        try {
+            conectar();
+            Statement sentencia = conexion.createStatement();
+            ResultSet res = sentencia.executeQuery(sql);
+            Categoria categoria = null;
+            while (res.next()) {
+                categoria = new Categoria();
+                categoria.setTitulo(res.getString("titulo"));
+                categoria.setDescripcion(res.getString("descripcion"));
+                categoria.setFoto(res.getString("foto"));
+                listaCategoria.add(categoria);
+            }
+
+            res.close();
+            sentencia.close();
+            conexion.close();
+        } catch (SQLException ex) {
+            ExcepcionRefind e = new ExcepcionRefind();
+            /*e.setMensajeErrorAdministrador(ex.getMessage());
+            e.setCodigoError(ex.getErrorCode());
+            e.setSentenciaSQL(sql);*/
+            e.setMensajeUsuario("Error general del sistema. Consulte con el administrador");
+            throw e;
+        }
+
+        return listaCategoria;
     }
 
 }
